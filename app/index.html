@@ -6,7 +6,7 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>jQuery Ajax Test</title>
-    <link rel="stylesheet" href="static/css/base.css'">
+    <link rel="stylesheet" href="static/css/base.css">
     <link rel="stylesheet" href="static/css/common.css">
     <link rel="stylesheet" href="static/css/sprite.css">
     <link rel="stylesheet" href="static/css/header.css">
@@ -44,9 +44,20 @@
     <div class="content-container">
 
     </div>
+    <button id="load-post-list">Load PostList</button>
 </div>
-<script src="../bower_components/jquery/dist/jquery.min.js"></script>
-<script src="../bower_components/swiper/dist/js/swiper.min.js"></script>
-
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../bower_components/swiper/dist/js/swiper.min.js"></script>
+    <script>
+      $.ajax('http://localhost:8000/api/post/')
+        .done(function(data) {
+          console.log('done');
+          console.log(data);
+        })
+        .fail(function(data) {
+          console.log('fail');
+          console.log(data);
+        });
+    </script>
 </body>
 </html>
