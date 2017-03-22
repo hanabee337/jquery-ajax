@@ -18,7 +18,6 @@
 
 <body>
 <div id="wrap">
-    {# 유저가 관리자일 경우만, is_authenticated 여부를 출력 #}
     <div>
         {{ user.username }}
     </div>
@@ -42,22 +41,113 @@
     </header>
 
     <div class="content-container">
+      <div class="post-list-container">
 
+      </div>
     </div>
+
     <button id="load-post-list">Load PostList</button>
+
 </div>
     <script src="../bower_components/jquery/dist/jquery.min.js"></script>
     <script src="../bower_components/swiper/dist/js/swiper.min.js"></script>
+    <!-- Moment.js 2.18.1
+        Parse, validate, manipulate, and display dates in JavaScript. -->
+    <script src="../bower_components/moment/moment.js"></script>
+    <script src="../bower_components/moment/locale/ko.js"></script>
+
     <script>
-      $.ajax('http://localhost:8000/api/post/')
-        .done(function(data) {
-          console.log('done');
-          console.log(data);
-        })
-        .fail(function(data) {
-          console.log('fail');
-          console.log(data);
+        // load-post-list라는 id를 가진 dom객체에 click이벤트를 할당, click시 loadPostList()를 실행
+        $('#load-post-list').click(function() {
+          loadPostList();
         });
+        // loadPostList ajax요청의 response data에 'next'값이 있으면 해당 값을 할당해 놓을 변수
+        var next;
+        // PostList GET요청 API함수
+        function loadPostList() {
+          // 첫 loadPostList API요청 URL
+          var url = 'http://localhost:8000/api/post/';
+          // next값이 있다면 요청 url은 해당값을 사용한다
+          if(next != undefined && next != null) {
+            url = next;
+          }
+          console.log(url);
+          $.ajax(url)
+            .done(function(data) {
+              // console.log(data);
+              // ajax요청의 응답에서 next값을 가져와 변수에 할당
+              next = data.next;
+              // 응답의 results를 results의 길이만큼 순회하며
+              for(var i = 0; i < data.results.length; i++) {
+                // 매 loop마다 results[i(인덱스)]의 값을 curPost변수에 할당
+                var curPost = data.results[i];
+
+                //
+                addArticle(curPost);
+              }
+            })
+            .fail(function(data) {
+              console.log('fail');
+              console.log(data);
+            });
+
+            function addArticle(curPost) {
+              // dummy 요소를 만들고 해당 요소를 clone()한 다음, clone()한 객체의 값을 바꾸는 것도 가능
+              var newDOM = $('<article class="post"></article>');
+              newDOM.attr('id', 'post-' + curPost.pk);
+
+              // curPost object의 pk값을 출력
+              console.log(curPost.pk);
+              // curPost의 값을 사용해서 div.content-container
+              // jquery의 append 메서드를 사용해 새 HTML요소를 동적으로 생성
+
+              // article요소의 post-header 를 생성
+              newDOM.append('<header class="post-header"></header>');
+              var newDOMHeader = newDOM.find('header.post-header');
+              newDOMHeader.append('<span class="header-username"></span>');
+              newDOMHeader.append('<form action="" class="inline"></form>');
+              newDOMHeader.append('<span class="header-date"></span>');
+
+              newDOMHeader.find('span.header-username');
+              newDOMHeader.find('span.header-username').text(curPost.author.username);
+              newDOMHeader.find('span.header-date');
+              newDOMHeader.find('span.header-date').text(curPost.create_date);
+              // 문자열이 아닌 moment.js를 사용해서 parse -> format한 형태로 대입
+              var day = moment(curPost.create_date);
+              var strDay = moment(day).format('YYYY년 M월 D일');
+              var strDay2 = moment(day).format('lll');
+              newDOMHeader.find('span.header-date').text(strDay2);
+
+              // article요소의 post-image-container 를 생성
+              newDOM.append('<div class="post-image-container"></div>');
+              newDOM.find('.post-image-container').append('<div class="swiper-container"></div>');
+              newDOM.find('.swiper-container').append('<div class="swiper-wrapper"></div>');
+              var newDOMSwiperWrapper = newDOM.find('.swiper-wrapper');
+              // curPost.postphoto_set을 loop하며
+              // .swiper-wrapper의 내부에 postphoto.photo 값을 사용해 .swiper-wrapper > img 태그를 생성
+              for (var j=0; j < curPost.postphoto_set.length; j++) {
+                var curPostPhoto = curPost.postphoto_set[j];
+                var newSwiperSlide = $('<div class="swiper-slide"></div>');
+                  newSwiperSlide.append('<img src="" alt="" />');
+                  newSwiperSlide.find('img').attr('src', curPostPhoto.photo);
+
+                // 만들어진 swiper-slide를 swiper-wrapper 내부에 append
+                newDOMSwiperWrapper.append(newSwiperSlide);
+              }
+
+              // article요소의 post-bottom-container 를 생성
+              newDOM.append('<div class="post-bottom-container"></div>');
+              $('.post-list-container').append(newDOM);
+
+              // $('.content-container').append('<div>' + curPost.pk +'</div>');
+
+              // 새로만든 aritlce내부의 .swiper-container에 id값을 추가
+              newDOM.find('.swiper-container').attr('id', 'post-swiper-' + curPost.pk);
+              // .swiper-container의 id로 Swiper초기화
+              new Swiper('#post-swiper-' + curPost.pk);
+            }
+        }
     </script>
+
 </body>
 </html>
