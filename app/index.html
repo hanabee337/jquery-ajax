@@ -6,7 +6,7 @@
   content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Instagram</title>
-  <link rel="stylesheet" href="static/css/sprites.min.css">
+  <link rel="stylesheet" href="static/css/sprite.min.css">
   <link rel="stylesheet" href="static/css/base.min.css">
   <link rel="stylesheet" href="static/css/common.min.css">
   <link rel="stylesheet" href="static/css/header.min.css">
@@ -47,6 +47,7 @@
 
   <script src="../bower_components/swiper/dist/js/swiper.jquery.min.js"></script>
   <!-- Custom Script -->
+  <script src="static/js/cookie.js"></script>
   <script src="static/js/dom-utils.js"></script>
   <script src="static/js/apis.js"></script>
   <script>
@@ -54,6 +55,8 @@
   $('#load-post-list').click(function() {
     loadPostList();
   });
+  obtainAuthToken('admin', 'qazwerty');
+  postCreate();
   </script>
 </body>
 </html>
